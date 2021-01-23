@@ -9,9 +9,25 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: 93.75%; /* 15px */
+}
+
 body {
   background: #f0f2f5;
   font-family: "Poppins", sans-serif;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 .container {
@@ -29,6 +45,21 @@ h2 {
   font-weight: normal;
 }
 
+/* Links & Buttons */
+a {
+  color: #49aa26;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #3dd705;
+}
+
+.button.new {
+  display: inline-block;
+  margin-bottom: .8rem;
+}
+
 /* Header */
 header {
   background: #2d4a22;
@@ -38,7 +69,7 @@ header {
 
 #logo {
   color: #fff;
-  font-weight: 100, bold;
+  font-weight: 100;
 }
 
 /* Balance */
@@ -56,13 +87,19 @@ header {
   background: white;
   padding: 1.5rem 2rem;
   border-radius: 0.25rem;
+
   margin-bottom: 2rem;
+  
   color: var(--dark-blue);
 }
 
 .card h3 {
   font-weight: normal;
   font-size: 1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .card p {
@@ -79,14 +116,22 @@ header {
 
 /* TABLE */
 #data-table {
+  display: block;
   width: 100%;
   border-spacing: 0 0.5rem;
   color: #969cb3;
+
+  overflow-x: auto;
 }
 
 table thead tr th:first-child,
 table tbody tr td:first-child {
-  border-radius: 0.25rem 0 0 0.25rem;
+  border-radius: 0.30rem 0 0 0.30rem;
+}
+
+table thead tr th:last-child,
+table tbody tr td:last-child {
+  border-radius: 0 0.30rem 0.30rem 0;
 }
 
 table thead th {
@@ -131,4 +176,18 @@ footer {
   color: #2d4a22;
   font-weight: bold;
   opacity: 0.7;
+}
+
+/* Responsive */
+
+@media (min-width: 800px) {
+    html {
+      font-size: 87.5%;
+    }
+
+    #balance {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
 }
