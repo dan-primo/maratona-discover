@@ -8,6 +8,19 @@ const Modal = {
   },
 };
 
+const Storage = {
+  get() {
+    return JSON.parse(localStorage.getItem("dev.finances:transactions")) || [];
+  },
+
+  set(transaction) {
+    localStorage.setItem(
+      "dev.finances:transactions",
+      JSON.stringify(transaction)
+    );
+  },
+};
+
 /* Organizando a linha de raciocínio:
         1 - Preciso somar as entradas
         2 - Em seguida, somar as saídas e,
@@ -16,47 +29,31 @@ const Modal = {
 
     */
 const Transaction = {
-  all: [
-    {
-      description: "Luz",
-      amount: -50000,
-      date: "23/01/2021",
-    },
-    {
-      description: "Website",
-      amount: 500000,
-      date: "23/01/2021",
-    },
-    {
-      description: "Internet",
-      amount: -20000,
-      date: "23/01/2021",
-    },
-  ],
+  all: Storage.get(),
 
-  add(transaction){
-    Transaction.all.push(transaction)
+  add(transaction) {
+    Transaction.all.push(transaction);
 
-    App.reload()
+    App.reload();
   },
 
   remove(index) {
-    Transaction.all.splice(index, 1)
+    Transaction.all.splice(index, 1);
 
-    App.reload()
+    App.reload();
   },
 
   incomes() {
     let income = 0;
     // pegar todas as transações
     //para cada transação,
-    Transaction.all.forEach(transaction => {
+    Transaction.all.forEach((transaction) => {
       // se for maior que zero
-      if(transaction.amount > 0) {
+      if (transaction.amount > 0) {
         // somar a uma variavel e retornar a variavel
         income += transaction.amount;
       }
-    })
+    });
     return income;
   },
 
@@ -65,20 +62,20 @@ const Transaction = {
     let expense = 0;
     // pegar todas as transações
     //para cada transação,
-    Transaction.all.forEach(transaction => {
+    Transaction.all.forEach((transaction) => {
       // se for menor que zero
-      if(transaction.amount < 0) {
+      if (transaction.amount < 0) {
         // subtrair a uma variavel e retornar a variavel
         expense += transaction.amount;
       }
-    })
+    });
     return expense;
   },
 
   total() {
     // entradas - saídas
     return Transaction.incomes() + Transaction.expenses();
-  }
+  },
 };
 
 /* Organizando a linha de raciocínio:
@@ -89,12 +86,13 @@ const DOM = {
   transactionsContainer: document.querySelector("#data-table tbody"),
   addTransaction(transaction, index) {
     const tr = document.createElement("tr");
-    tr.innerHTML = DOM.innerHTMLTransaction(transaction);
+    tr.innerHTML = DOM.innerHTMLTransaction(transaction, index);
+    tr.dataset.index = index;
 
     DOM.transactionsContainer.appendChild(tr);
   },
 
-  innerHTMLTransaction(transaction) {
+  innerHTMLTransaction(transaction, index) {
     const CSSclass = transaction.amount > 0 ? "income" : "expense";
 
     const amount = Utils.formatCurrency(transaction.amount);
@@ -104,7 +102,7 @@ const DOM = {
         <td class="${CSSclass}">${amount}</td>
         <td class="date">${transaction.date}</td>
         <td>
-          <img src="./assets/minus.svg" 
+          <img onclick="Transaction.remove(${index})" src="./assets/minus.svg" 
           alt="Remover Transação" />
         </td>
         `;
@@ -112,23 +110,34 @@ const DOM = {
   },
 
   updateBalance() {
-    document
-      .getElementById("incomeDisplay")
-      .innerHTML = Utils.formatCurrency(Transaction.incomes())
-    document
-      .getElementById("expenseDisplay")
-      .innerHTML = Utils.formatCurrency(Transaction.expenses())
-    document
-      .getElementById("totalDisplay")
-      .innerHTML = Utils.formatCurrency(Transaction.total())
+    document.getElementById("incomeDisplay").innerHTML = Utils.formatCurrency(
+      Transaction.incomes()
+    );
+    document.getElementById("expenseDisplay").innerHTML = Utils.formatCurrency(
+      Transaction.expenses()
+    );
+    document.getElementById("totalDisplay").innerHTML = Utils.formatCurrency(
+      Transaction.total()
+    );
   },
 
   clearTransactions() {
-    DOM.transactionsContainer.innerHTML = ""
-  }
+    DOM.transactionsContainer.innerHTML = "";
+  },
 };
 
 const Utils = {
+  formatAmount(value) {
+    value = value * 100;
+
+    return Math.round(value);
+  },
+
+  formatDate(date) {
+    const splittedDate = date.split("-");
+    return `${splittedDate[2]}/${splittedDate[1]}/${splittedDate[0]}`;
+  },
+
   formatCurrency(value) {
     const signal = Number(value) < 0 ? "-" : "";
     // ternario de verdadeiro ou falso
@@ -148,53 +157,86 @@ const Utils = {
 };
 
 const Form = {
-  description: document.querySelector('input#description'),
-  amount: document.querySelector('input#amount'),
-  date: document.querySelector('input#date'),
+  description: document.querySelector("input#description"),
+  amount: document.querySelector("input#amount"),
+  date: document.querySelector("input#date"),
 
   getValues() {
     return {
       description: Form.description.value,
       amount: Form.amount.value,
-      date: Form.date.value
-    }
-  },
-
-  formatData(){
-    console.log('Formatar os dados')
+      date: Form.date.value,
+    };
   },
 
   validateFields() {
-    console.log('validar os campos')
+    const { description, amount, date } = Form.getValues();
+
+    if (
+      description.trim() === "" ||
+      amount.trim() === "" ||
+      date.trim() === ""
+    ) {
+      throw new Error("Por favor, preencha todos os campos");
+    }
+  },
+
+  formatValues() {
+    let { description, amount, date } = Form.getValues();
+
+    amount = Utils.formatAmount(amount);
+
+    date = Utils.formatDate(date);
+
+    return {
+      description,
+      amount,
+      date,
+    };
+  },
+
+  clearFields() {
+    Form.description.value = "";
+    Form.amount.value = "";
+    Form.date.value = "";
   },
 
   submit(event) {
-    event.preventDefault()
+    event.preventDefault();
+
+    try {
+      Form.validateFields();
+      const transaction = Form.formatValues();
+      // salvar
+      Transaction.add(transaction);
+      // apagar o dados do formulário
+      Form.clearFields();
+      // fechar o modal do formulário
+      Modal.close();
+      // atualizar a aplicação com os dados
+    } catch (error) {
+      alert(error.message);
+    }
 
     // verificar se todas as informações foram preenchidas
-    Form.validateFields()
-    // formatar os dados para salvar
-    // Form.formatData()
-    // salvar
-    // apagar o dados do formulário
-    // fechar o modal do formulário
-    // atualizar a aplicação com os dados
-  }
-}
+  },
+};
 
 const App = {
   init() {
-    Transaction.all.forEach(transaction => {
-      DOM.addTransaction(transaction);
-    })
-    
-    DOM.updateBalance()
+    Transaction.all.forEach(DOM.addTransaction);
+    // Transaction.all.forEach((transaction, index) => {
+    //   DOM.addTransaction(transaction, index);
+    // })
 
+    DOM.updateBalance();
+
+    Storage.set(Transaction.all);
   },
   reload() {
-    DOM.clearTransactions()
-    App.init()
+    DOM.clearTransactions();
+    App.init();
   },
-}
+};
 
-App.init()
+App.init();
