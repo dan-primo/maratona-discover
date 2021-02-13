@@ -15,8 +15,21 @@
   </head>
   <body>
     <header>
-      <img src="./assets/logo.svg" alt="Logitipo Dev Finance" />
+      <img
+        src="./assets/logo.svg"
+        title="Logotipo Dev Finance"
+        alt="Logotipo da Marca Fictícia Dev Finance"
+      />
     </header>
+
+    <!-- Integração de Acessibilidade -->
+
+    <div vw class="enabled">
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    </div>
 
     <main class="container">
       <section id="balance">
@@ -25,7 +38,11 @@
         <div class="card">
           <h3>
             <span> Entradas </span>
-            <img src="./assets/income.svg" alt="Imagem de Entradas" />
+            <img
+              src="./assets/income.svg"
+              title="Figura de entradas que representa os saldos positivos"
+              alt="Figura de Entradas"
+            />
           </h3>
           <p id="incomeDisplay">R$ 0,00</p>
         </div>
@@ -33,7 +50,11 @@
         <div class="card">
           <h3>
             <span> Saídas </span>
-            <img src="./assets/expense.svg" alt="Imagem de Saídas" />
+            <img
+              src="./assets/expense.svg"
+              title="Figura de saídas que representa os saldos negativos"
+              alt="Figura de Saídas"
+            />
           </h3>
           <p id="expenseDisplay">R$ 0,00</p>
         </div>
@@ -41,7 +62,11 @@
         <div class="card total">
           <h3>
             <span> Total </span>
-            <img src="./assets/total.svg" alt="Imagem de Total" />
+            <img
+              src="./assets/total.svg"
+              title="Figura representativa para equação de entradas e saídas"
+              alt="Figura de Total"
+            />
           </h3>
           <p id="totalDisplay">R$ 0,00</p>
         </div>
@@ -117,6 +142,12 @@
 
     <footer><p>&copy; copyright dev.finance$ | 2021</p></footer>
 
+    <!-- Script para acessibilidade em Libras -->
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+      new window.VLibras.Widget("https://vlibras.gov.br/app");
+    </script>
+    <!-- Script Geral -->
     <script src="./scripts.js"></script>
   </body>
 </html>
